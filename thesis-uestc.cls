@@ -59,19 +59,22 @@
   \newfontfamily{\heiti@letter}{STHeiti}
   \setallmainfonts{Times New Roman}
 \else
-  \setCJKmainfont[AutoFakeBold=true]{fzsong.ttf}
-  \newCJKfontfamily{\heiti}{fzhei.ttf}
-  \newfontfamily{\heiti@letter}{fzhei.ttf}
-  \setallmainfonts[
-    BoldFont=timesbd.ttf,
-    ItalicFont=timesi.ttf,
-    BoldItalicFont=timesbi.ttf,
-  ]{times.ttf}
+  \setCJKmainfont[AutoFakeBold=true]{SimSun}
+  \newCJKfontfamily{\heiti}{SimHei}
+  \newfontfamily{\heiti@letter}{SimHei}
+  \setmainfont{times}[
+    Path = /usr/share/fonts/truetype/msttcorefonts/, % 根据实际路径调整
+    Extension = .ttf,
+    UprightFont = *,
+    BoldFont = *bd,
+    ItalicFont = *i,
+    BoldItalicFont = *bi
+  ]
 \fi
 \fi
 
-\DeclareMathAlphabet{\mathbf}{\eu@enc}{\eu@mathrm}{\bfdefault}{it}
-\DeclareMathAlphabet{\mathbd}{\eu@enc}{\eu@mathrm}{\bfdefault}{n}
+% \DeclareMathAlphabet{\mathbf}{\eu@enc}{\eu@mathrm}{\bfdefault}{it}
+% \DeclareMathAlphabet{\mathbd}{\eu@enc}{\eu@mathrm}{\bfdefault}{n}
 \newcommand{\bm}{\mathbf}
 
 \RequirePackage{zhnumber}
