@@ -26,8 +26,17 @@
 \end{chineseabstract}
 
 \begin{englishabstract}
+Vision-and-Language Navigation (VLN) is a crucial research direction in embodied intelligence, where agents receive and understand instructions, comprehend environmental information, and execute actions to complete navigation tasks. In VLN tasks, large language models (LLMs) demonstrate a strong emergent capability, being able to understand complex scenes and advanced instructions and make navigation decisions leveraging intrinsic knowledge. This paper focuses on the application of large language models in VLN tasks to enhance task performance.
 
-\englishkeyword{}
+The paper begins with a survey on the development of VLN, analyzing datasets in indoor navigation tasks, evaluation metrics, and traditional methods based on pre-trained models. It then introduces three adaptation modes of LLMs in VLN tasks: In-context learning, chain of thought prompting, and fine-tuning-based methods, and explores enhancement methods that currently offer the best performance with traditional models.
+
+To improve the prompting effect of LLMs, this study attempts two directions: sub-instruction generation and viewpoint selection. Firstly, a sub-instruction evaluation framework is established, and the performance of traditional models before and after the addition of sub-instructions is compared. Subsequently, LLMs are fine-tuned using ground truth, enhancing navigation performance in unseen environments.
+
+In the viewpoint selection part, experiments comparing the accuracy rates before and after fine-tuning demonstrate that the fine-tuning method can improve the performance of viewpoint selection tasks. To further enhance the accuracy of viewpoint selection, we propose a multiple-layer fine-tuning method, including two stages: room sequence prediction and viewpoint selection. After fine-tuning, the model can correctly predict room type sequences in unseen environments with an accuracy of 63\%, significantly enhancing the capabilities of LLMs in VLN tasks.
+
+Finally, addressing the issues in the adaptation work, we propose subsequent improvement directions, including the use of specialized models to supplement visual information and the construction of thought chain prompting datasets for fine-tuning.
+
+\englishkeyword{Vision-and-Language Navigation, Large language models, Computer Vision}
 \end{englishabstract}
 
 \thesistableofcontents
@@ -81,7 +90,7 @@ VLN 任务将计算机视觉，自然语言处理等深度学习的研究方向�
 
    基于多任务和迁移学习的方法也能够有效缓解室内导航数据少的问题，从其它任务上学习到的知识有益于视觉语言导航任务的完成。此外，利用课程学习的方法对导航任务按照难度递增的顺序进行排列，也可以有效的适配复杂的室内导航任务。
 
-基于大语言模型增强的方法
+\subsection{基于大语言模型增强的方法}
 
 GPT3\cite{ouyangTrainingLanguageModels2022} 等大语言模型（LLM）的发展，为视觉语言导航的研究带来了新的方向，基于少样本甚至无样本的室内导航成为可能。周围的环境信息输入LLM 中，并且利用LLM做出导航决策，即使是面对未见的场景，也可以通过提示工程来引导生成导航轨迹。NavGPT\cite{zhouNavGPTExplicitReasoning2023a} 利用大语言模型（GPT-4\cite{openaiGPT4TechnicalReport2024}）进行导航规划，分解导航目标，理解导航进度，完成导航任务。受限于其总结导航历史的方式，该模型在R2R数据集中的细粒度导航指令表现较好。另一个较为突出的工作是 MapGPT\cite{chenMapGPTMapGuidedPrompting2024}，利用图结构维护导航点的联通关系，通过简单修改提示词即可在R2R 和 REVERIE 数据集上切换，并且取得了比 NavGPT 更好的效果。基于LLM的模型展现出极大的应用前景，但基于这些方法的性能仍然不能超越基于学习的方法。
 
@@ -532,7 +541,7 @@ FG-R2R 由 R2R 数据集分割而来，和 REVERIE 共享相同的轨迹，但�
 \begin{enumerate}
     \item 高级指令：为当前执行的高级指令，在一次执行过程中，高级指令保持不变。
     \item 当前房间与可见物体：复现了MiC 方法中的 ROASP。利用物体和房间的文本描述和全景图像观察来计算视点处可见的物体和当前房间的场景类别。具体做法是将利用CLIP中的图像和文本编码器，将图像和文本转为特征向量，利用余弦相似度来度量二者的对齐程度。
-    \item 目标房间和物体：利用LLM中的自然语言处理能力，输入高级指令$I$，输出目标物体和目标所在的房间。LLM 接收结构化的请求，如：”已知高级指令$I$，请回答该指令中的目标物体是什么。“ ，LLM 输出指令中的目标物体 $obj_t$ 。随后构造目标房间请求，如：”已知目标物体$o_t$ ，请回答该目标物体可能位于什么地方。“，LLM 输出目标物体可能处于的房间类型$room_t$ 。
+    \item 目标房间和物体：利用LLM中的自然语言处理能力，输入高级指令$I$，输出目标物体和目标所在的房间。LLM 接收结构化的请求，如：“已知高级指令$I$，请回答该指令中的目标物体是什么？” ，LLM 输出指令中的目标物体 $obj_t$ 。随后构造目标房间请求，如：“已知目标物体$o_t$ ，请回答该目标物体可能位于什么地方。”，LLM 输出目标物体可能处于的房间类型$room_t$ 。
     \item 当前场景的观察：这个部分利用BLIP2模型生成全景图对应的文字描述信息。为了区分不同方向的观察信息，将环绕一周的全景图拆分为12个方向，每个方向提供60°的水平可视角度，这样得到12张拆分的全景观察图片$O=\{o_0,o_2,\cdots,o_{11}\}$。为了将全景观察转为文字描述，利用预训练的视觉语言模型BLIP2，为每一张视觉场景图片$o_i$生成对应的图像字幕$c_i$ ，如图\ref{cap}所示。图像字幕$C$ 提供了当前房间的视觉表达，提供的信息比物体和房间类型信息更加具体和直接。
 \end{enumerate}
 
@@ -694,7 +703,7 @@ P(w_1, w_2, \ldots, w_n | Q) = P(w_1|Q) \times P(w_2 \mid w_1) \times P(w_3 \mid
 \begin{enumerate}
     \item 系统提示将子指令生成的任务修改为视点生成的任务，并对生成格式等做了要求。生成子指令只需在合适的位置截断LLM回答即可完成，视点选择则必须要求答案按照指定格式给出，以便在后续处理中进行答案解析。
     \item 高级指令，目标物体及所在位置，当前位置以及可见主要物体，这三个部分未作变化。
-    \item 可选视点以”选项：观察信息“的格式给出。其中观察信息为智能体在当前视点$V$处，看向可选视点$N(V)$ 方向对应的图像字幕。
+    \item 可选视点以“选项：观察信息”的格式给出。其中观察信息为智能体在当前视点$V$处，看向可选视点$N(V)$ 方向对应的图像字幕。
 \end{enumerate}
 
 % 改变之后的提示词示例如下：
@@ -776,7 +785,7 @@ LLM 直接生成子指令选择存在困难，表现为绝对准确率不高，�
 
 为了综合衡量LLM生成房间轨迹的效果，采用精确匹配率和交并比两个指标衡量生成房间序列的效果。对于LLM生成的房间类型序列$\hat{T} = [\hat{t}_1,\hat{t}_2,\cdots,\hat{t}_n]$ 而言，精确匹配率判断是否和标准房间类型序列一致，交并比判断生成房间类型和标准答案之间的覆盖程度。
 
-我们采用LLaMa-7B 模型 和 Mistral-7B 模型进行一系列实验，对比了两个模型微调前后的性能变化，结果如图所示：
+我们采用LLaMa-7B 模型 和 Mistral-7B 模型进行一系列实验，对比了两个模型微调前后的性能变化，结果如图\ref{room_pred}所示：
 
 % \textcolor{red}{TODO 图像}
 \begin{figure}[htbp]
@@ -790,12 +799,12 @@ LLM 直接生成子指令选择存在困难，表现为绝对准确率不高，�
     \hfill % 在子图之间添加水平空间
     \begin{subfigure}[b]{0.48\textwidth} 
         \centering    % 子图居中
-        \includegraphics[width=\textwidth]{2213-042817.png}
+        \includegraphics[width=\textwidth]{1630-052114.png}
         \caption{集合交并比}
         \label{fig:sub2}
     \end{subfigure}
-    \caption{LLM }    % 大图名称
-    \label{vproom}    % 图片引用标记
+    \caption{LLM 在不同数据集下房屋序列预测结果}    % 大图名称
+    \label{room_pred}    % 图片引用标记
 \end{figure}
 
 在未经微调（epoch 0）的情况下，模型均难以生成正确的轨迹数据，在生成集合的交并比方面，LLaMa2-7B 模型的效果要优于 Mistral-7B 模型。经过两轮微调后，模型预测房间类型已经能在见过环境下达到$70\%$ 以上的正确率。在未见环境下，表现最好的 Mistral-7B 模型也能将$63\%$ 的房间序列完全预测正确。这表现出在微调过程中LLM 获得室内布局的一般知识。此外，在未见情况下，预测的房间内容也基本和答案吻合，在未见环境下，平均交并比达到了$88\%$  。、这一微调结果证明了利用房间序列微调LLM模型以能够有效迁移室内场景布局知识，进而辅助后续的视点选择等工作。
@@ -886,9 +895,9 @@ LLM 直接生成子指令选择存在困难，表现为绝对准确率不高，�
 
 一种潜在的解决方案是构建一个地图 [18]，该地图明确记录到目前为止观察到的所有已访问和可导航位置。地图使代理能够制定有效的长期导航计划。例如，代理可以从地图中选择一个长期目标，并使用地图计算到达目标的最短路径。拓扑地图已被之前的视觉和语言导航（VLN）工作 [8, 19, 20] 探索。然而，这些方法在两个方面仍有不足。首先，它们依赖于递归架构来跟踪导航状态，如图2中间所示，这可能极大地阻碍探索的长期推理能力。其次，拓扑地图中的每个节点通常由压缩的视觉特征表示。这种粗略的表示减少了复杂性，但可能缺乏细节，无法在指令中对细粒度对象和场景描述进行定位。
 
-我们的方法解决了这两个缺点，第一个基于变换器架构，第二个使用双尺度行动规划方法。我们提出了一个带有拓扑地图的双尺度图变换器（DUET）。如图1所示，我们的模型由两个模块组成：拓扑映射和全局行动规划。在拓扑映射中，我们通过向地图添加新观察到的位置并更新节点的视觉表示来随时间构建拓扑地图。然后在每一步中，全球行动规划模块预测地图中的下一个位置或停止动作。为了平衡细粒度语言定位和大图推理，我们提议从双尺度动态融合行动预测：当前位置的细尺度表示和地图的粗尺度表示。特别是，我们使用变换器捕捉跨模态视觉与语言关系，并通过引入图拓扑知识来改进地图编码。我们通过行为克隆和辅助任务对模型进行预训练，并提出一个伪交互示范者来进一步提高策略学习。DUET 在面向目标的 VLN 基准测试 REVERIE 和 SOON 上显著优于最先进的方法。它还提高了细粒度 VLN 基准 R2R 的成功率。总之，我们工作的贡献有三个方面：
+我们的方法解决了这两个缺点，第一个基于变换器架构，第二个使用双尺度行动规划方法。我们提出了一个带有拓扑地图的双尺度图变换器（DUET）。如图1所示，我们的模型由两个模块组成：拓扑映射和全局行动规划。在拓扑映射中，我们通过向地图添加新观察到的位置并更新节点的视觉表示来随时间构建拓扑地图。然后在每一步中，全局行动规划模块预测地图中的下一个位置或停止动作。为了平衡细粒度语言定位和大图推理，我们提议从双尺度动态融合行动预测：当前位置的细尺度表示和地图的粗尺度表示。特别是，我们使用变换器捕捉跨模态视觉与语言关系，并通过引入图拓扑知识来改进地图编码。我们通过行为克隆和辅助任务对模型进行预训练，并提出一个伪交互示范者来进一步提高策略学习。DUET 在面向目标的 VLN 基准测试 REVERIE 和 SOON 上显著优于最先进的方法。它还提高了细粒度 VLN 基准 R2R 的成功率。总之，我们工作的贡献有三个方面：
 \begin{enumerate}
-    \item 我们提出了一个用于 VLN 的双尺度图变换器（DUET），结合了粗尺度地图编码和当前位置的细尺度编码，以有效规划全球行动。
+    \item 我们提出了一个用于 VLN 的双尺度图变换器（DUET），结合了粗尺度地图编码和当前位置的细尺度编码，以有效规划全局行动。
     \item 我们采用图变换器编码拓扑地图，并学习与指令的跨模态关系，以便行动预测可以依赖于长距离导航记忆。
     \item DUET 在面向目标的 VLN 基准测试上达到了最先进的水平，在挑战性的 REVERIE 和 SOON 数据集上的成功率（SR）提高了超过 20\%，同时也普遍适用于细粒度 VLN 任务，即在 R2R 数据集上将 SR 提高了 4\%。
 \end{enumerate}
